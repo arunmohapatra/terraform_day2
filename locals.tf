@@ -7,4 +7,6 @@ locals {
     owner       = var.owner
     managed_by  = "terraform"
   }
+
+  config_directory = "C:\\dir_created_using_terraform"
 }

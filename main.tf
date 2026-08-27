@@ -1,6 +1,33 @@
-# Create a local directory
+# ============================================================
+# Create directory
+# ============================================================
+
+resource "terraform_data" "create_directory" {
+
+  input = local.config_directory
+
+  provisioner "local-exec" {
+    command     = "mkdir ${self.input}"
+    interpreter = ["cmd", "/C"]
+  }
+
+  provisioner "local-exec" {
+    when        = destroy
+    command     = "rmdir /S /Q ${self.input}"
+    interpreter = ["cmd", "/C"]
+  }
+}
+
+
+# ============================================================
+# Project information
+# ============================================================
+
 resource "local_file" "project_info" {
-  filename = "C:/day2/output/project-info.txt"
+
+  depends_on = [terraform_data.create_directory]
+
+  filename = "${local.config_directory}\\project-info.txt"
 
   content = <<-EOT
     Terraform Local Hands-On Lab
@@ -10,15 +37,23 @@ resource "local_file" "project_info" {
     Environment  : ${var.environment}
     Owner        : ${var.owner}
     Description  : ${local.project_description}
+
     This file was created using Terraform.
   EOT
 }
 
-# Create environment-specific configuration files
+
+# ============================================================
+# Environment-specific configuration
+# ============================================================
+
 resource "local_file" "environment_config" {
+
   for_each = var.configurations
 
-  filename = "C:/day2/output/${each.key}.conf"
+  depends_on = [terraform_data.create_directory]
+
+  filename = "${local.config_directory}\\${each.key}.conf"
 
   content = <<-EOT
     Environment Configuration
@@ -29,13 +64,20 @@ resource "local_file" "environment_config" {
     Owner       : ${var.owner}
     Port        : ${each.value.port}
     Debug       : ${each.value.debug}
-    Tags        :${jsonencode(local.common_tags)}
+    Tags        : ${jsonencode(local.common_tags)}
   EOT
 }
 
-# Create a simple JSON file
+
+# ============================================================
+# Application JSON
+# ============================================================
+
 resource "local_file" "application_json" {
-  filename = "C:/day2/output/application.json"
+
+  depends_on = [terraform_data.create_directory]
+
+  filename = "${local.config_directory}\\application.json"
 
   content = jsonencode({
     application = var.project_name
