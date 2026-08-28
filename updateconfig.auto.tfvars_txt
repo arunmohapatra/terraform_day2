@@ -1,0 +1,16 @@
+configurations = {
+  dev = {
+    port  = 123456
+    debug = true
+  }
+
+  test = {
+    port  = 44444
+    debug = true
+  }
+
+  prod = {
+    port = 66666
+    debug = false
+  }
+}
