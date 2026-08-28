@@ -47,3 +47,18 @@ variable "configurations" {
     }
   }
 }
+
+variable "configuration_overrides" {
+  type = map(object({
+    port  = number
+    debug = bool
+  }))
+
+  default = {
+    dev = {
+      port  = 9090
+      debug = false
+    }
+  }
+}
+
